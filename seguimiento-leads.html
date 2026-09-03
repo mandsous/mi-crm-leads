@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seguimiento de leads · Meta Ads</title>
+<style>
+  :root{
+    --bg:#0E1512;
+    --surface:#151F19;
+    --surface-2:#1C2921;
+    --ink:#E3E8E2;
+    --ink-soft:#93A392;
+    --ink-mute:#5C6B5A;
+    --line:#243329;
+    --line-strong:#334537;
+    --teal:#3FCB91;
+    --teal-bg:#0F3225;
+    --teal-line:#215A41;
+    --amber:#D8BB55;
+    --amber-bg:#332B0C;
+    --amber-line:#59491D;
+    --blue:#8FC9BE;
+    --blue-bg:#152E28;
+    --blue-line:#2A4E45;
+    --red:#DE8869;
+    --red-bg:#332218;
+    --red-line:#583B28;
+    --green:#8DCB68;
+    --green-bg:#1D2B12;
+    --green-line:#394B25;
+    --gray:#8C9186;
+    --gray-bg:#22271F;
+    --gray-line:#3A3F34;
+    --accent:#38C98C;
+    --accent-bg:#0F3527;
+    --radius:10px;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  body[data-theme="light"]{
+    --bg:#F2F5EF;
+    --surface:#FFFFFF;
+    --surface-2:#E7EDE2;
+    --ink:#1B2419;
+    --ink-soft:#54624F;
+    --ink-mute:#8A9584;
+    --line:#DBE2D4;
+    --line-strong:#C3CEB9;
+    --teal:#0F8452;
+    --teal-bg:#DEF2E5;
+    --teal-line:#A6DBBB;
+    --amber:#8A6A16;
+    --amber-bg:#FAEFCE;
+    --amber-line:#E7CC85;
+    --blue:#3E6C5B;
+    --blue-bg:#E1EFE8;
+    --blue-line:#A9CABB;
+    --red:#A24A2C;
+    --red-bg:#FAE6DC;
+    --red-line:#E7B69C;
+    --green:#3F7C29;
+    --green-bg:#E6F1DD;
+    --green-line:#B7D89C;
+    --gray:#59614F;
+    --gray-bg:#EBEFE5;
+    --gray-line:#C9D0C0;
+    --accent:#0F8452;
+    --accent-bg:#DEF2E5;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    color-scheme: dark;
+  }
+  body[data-theme="light"]{ color-scheme: light; }
+  .wrap{max-width:1240px;margin:0 auto;padding:28px 24px 60px;}
+
+  .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:600;margin:0 0 6px;}
+  h1{font-size:26px;font-weight:650;margin:0 0 18px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;}
+  .top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+  .wipe-btn{
+    font-size:11.5px;height:28px;padding:0 12px;color:var(--ink-mute);background:transparent;
+    border:1px solid var(--line);opacity:.7;
+  }
+  .wipe-btn:hover{opacity:1;border-color:var(--red-line);color:var(--red);background:var(--red-bg);}
+  .version-badge{
+    font-family:var(--mono);font-size:11px;font-weight:650;color:var(--ink-mute);background:var(--surface);
+    border:1px solid var(--line-strong);border-radius:100px;padding:3px 10px;letter-spacing:.02em;
+  }
+  .save-status{font-size:11.5px;font-weight:500;color:var(--ink-mute);transition:color .2s;}
+  .save-status.saving{color:var(--amber);}
+  .save-status.saved{color:var(--teal);}
+
+  .banner{
+    display:flex;align-items:center;gap:10px;background:var(--red-bg);border:1px solid var(--red-line);
+    color:var(--red);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;margin-bottom:16px;
+  }
+
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 16px;min-width:100px;}
+  .stat .num{font-size:20px;font-weight:650;font-family:var(--mono);}
+  .stat .lbl{font-size:11.5px;color:var(--ink-mute);margin-top:2px;}
+  .stat.today .num{color:var(--amber);}
+  .stat.overdue .num{color:var(--red);}
+  .stat.won .num{color:var(--teal);}
+  .stat.dup .num{color:var(--red);}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  input[type=text], select{
+    height:36px;border:1px solid var(--line-strong);border-radius:8px;background:var(--surface);color:var(--ink);
+    font-family:var(--sans);font-size:13.5px;padding:0 10px;outline:none;
+  }
+  input[type=text]:focus, select:focus, input[type=datetime-local]:focus, textarea:focus{
+    border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);
+  }
+  .search{width:220px;}
+  .btn{
+    height:36px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+    font-size:13.5px;font-weight:600;padding:0 14px;cursor:pointer;font-family:var(--sans);
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .btn:hover{background:var(--surface-2);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#0E1512;}
+  .btn.primary:hover{background:#5DDBA6;}
+  .btn.danger{background:var(--red);border-color:var(--red);color:#fff;}
+  .btn.danger:hover{background:#ea9a83;}
+  .btn.small{height:30px;padding:0 10px;font-size:12.5px;}
+  .spacer{flex:1;}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .chip{
+    height:30px;border-radius:100px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-soft);
+    font-size:12.5px;font-weight:600;padding:0 12px;cursor:pointer;font-family:var(--sans);
+  }
+  .chip.active{background:var(--accent-bg);color:var(--accent);border-color:var(--teal-line);}
+
+  .view-toggle{display:flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden;}
+  .view-toggle button{
+    height:36px;padding:0 14px;background:var(--surface);border:none;color:var(--ink-soft);font-size:13px;
+    font-weight:600;cursor:pointer;font-family:var(--sans);
+  }
+  .view-toggle button.active{background:var(--accent);color:#0E1512;}
+  .view-toggle button + button{border-left:1px solid var(--line-strong);}
+
+  .export-wrap{position:relative;}
+  .export-menu{
+    display:none;position:absolute;top:42px;right:0;background:var(--surface);border:1px solid var(--line-strong);
+    border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.35);overflow:hidden;min-width:190px;z-index:30;
+  }
+  .export-menu.open{display:block;}
+  .export-menu button{
+    display:block;width:100%;text-align:left;padding:10px 14px;background:transparent;border:none;color:var(--ink);
+    font-family:var(--sans);font-size:13px;cursor:pointer;
+  }
+  .export-menu button:hover{background:var(--surface-2);}
+  .export-menu button + button{border-top:1px solid var(--line);}
+
+  /* panel de estadisticas */
+  .stats-panel{
+    display:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:18px 20px;margin-bottom:16px;
+  }
+  .stats-panel.open{display:block;}
+  .stats-panel h3{font-size:14px;margin:0 0 12px;font-weight:650;}
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+  .stats-col-title{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-mute);font-weight:650;margin:0 0 8px;}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12.5px;}
+  .bar-label{width:100px;flex:none;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar-track{flex:1;height:8px;background:var(--surface-2);border-radius:6px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--accent);border-radius:6px;}
+  .bar-count{width:26px;text-align:right;font-family:var(--mono);color:var(--ink-mute);flex:none;}
+  .kpi-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;}
+  .kpi{background:var(--surface-2);border-radius:10px;padding:10px 14px;min-width:130px;}
+  .kpi .num{font-family:var(--mono);font-size:18px;font-weight:650;color:var(--accent);}
+  .kpi .lbl{font-size:11.5px;color:var(--ink-mute);margin-top:2px;}
+
+  .board{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);
+    font-weight:650;padding:12px 12px;border-bottom:1px solid var(--line);background:var(--surface-2);white-space:nowrap;
+  }
+  tbody tr{border-bottom:1px solid var(--line);position:relative;}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr td{padding:10px 12px;vertical-align:top;}
+  tbody tr.stripe-nuevo td:first-child{box-shadow:inset 3px 0 0 var(--blue);}
+  tbody tr.stripe-contactado td:first-child{box-shadow:inset 3px 0 0 var(--amber);}
+  tbody tr.stripe-interesado td:first-child{box-shadow:inset 3px 0 0 var(--teal);}
+  tbody tr.stripe-noresponde td:first-child{box-shadow:inset 3px 0 0 var(--gray);}
+  tbody tr.stripe-nointeresado td:first-child{box-shadow:inset 3px 0 0 var(--red);}
+  tbody tr.stripe-cerrado td:first-child{box-shadow:inset 3px 0 0 var(--green);}
+
+  .lead-cell{display:flex;align-items:center;gap:6px;}
+  .nombre-input{width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--ink);padding:4px 2px;border-radius:6px;}
+  .nombre-input:focus{background:var(--surface-2);outline:none;}
+  .tel-input{width:100%;border:none;background:transparent;font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);padding:4px 2px;border-radius:6px;}
+  .tel-input:focus{background:var(--surface-2);outline:none;}
+  .tel-input.dup{color:var(--red);}
+  .phone-actions{display:flex;gap:5px;margin-top:4px;}
+  .icon-btn{
+    width:24px;height:24px;border-radius:6px;border:1px solid var(--line-strong);background:var(--surface);
+    display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);
+    text-decoration:none;flex:none;
+  }
+  .icon-btn svg{width:13px;height:13px;}
+  .icon-btn:hover{background:var(--surface-2);color:var(--accent);border-color:var(--accent);}
+  .icon-btn.wa:hover{color:var(--teal);border-color:var(--teal-line);}
+  .icon-btn.copied{color:var(--teal);border-color:var(--teal-line);}
+  .icon-btn.disabled{opacity:.35;pointer-events:none;}
+  .textarea-wrap{position:relative;}
+  .mic-btn{
+    position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-soft);
+    display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .mic-btn svg{width:14px;height:14px;}
+  .mic-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .mic-btn.recording{background:var(--red);border-color:var(--red);color:#fff;animation:pulse 1.1s infinite;}
+  .mic-btn.processing{background:var(--amber);border-color:var(--amber);color:#1a1a1a;animation:spin 1s linear infinite;}
+  @keyframes spin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(222,136,105,.5);}
+    70%{box-shadow:0 0 0 8px rgba(222,136,105,0);}
+    100%{box-shadow:0 0 0 0 rgba(222,136,105,0);}
+  }
+
+  .dup-flag{font-size:10.5px;color:var(--red);margin-left:2px;}
+  .camp-input, .tags-input{width:100%;border:none;background:transparent;font-size:12.5px;color:var(--ink-soft);padding:4px 2px;border-radius:6px;}
+  .camp-input:focus, .tags-input:focus{background:var(--surface-2);outline:none;}
+
+  .score-pill{
+    flex:none;font-family:var(--mono);font-size:11px;font-weight:650;border-radius:100px;
+    padding:2px 7px;border:1px solid;
+  }
+  .score-hi{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-line);}
+  .score-mid{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-line);}
+  .score-lo{background:var(--gray-bg);color:var(--gray);border-color:var(--gray-line);}
+
+  .tag-chip{
+    display:inline-block;font-size:10.5px;background:var(--surface-2);border:1px solid var(--line-strong);
+    color:var(--ink-soft);border-radius:100px;padding:2px 8px;margin:2px 4px 0 0;
+  }
+
+  .estado-select{
+    font-size:12px;font-weight:650;border-radius:100px;padding:5px 10px;border:1px solid;cursor:pointer;
+    appearance:none;-webkit-appearance:none;font-family:var(--sans);min-width:120px;
+  }
+  .estado-nuevo{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-line);}
+  .estado-contactado{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-line);}
+  .estado-interesado{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-line);}
+  .estado-noresponde{background:var(--gray-bg);color:var(--gray);border-color:var(--gray-line);}
+  .estado-nointeresado{background:var(--red-bg);color:var(--red);border-color:var(--red-line);}
+  .estado-cerrado{background:var(--green-bg);color:var(--green);border-color:var(--green-line);}
+
+  .call-cell{display:flex;align-items:center;gap:7px;}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .dot.overdue{background:var(--red);}
+  .dot.today{background:var(--amber);}
+  .dot.future{background:var(--teal);}
+  .dot.none{background:var(--line-strong);}
+  input[type=datetime-local]{
+    border:none;background:transparent;font-family:var(--mono);font-size:12.5px;color:var(--ink);
+    padding:4px 6px 4px 2px;border-radius:6px;width:210px;
+  }
+  input[type=datetime-local]::-webkit-calendar-picker-indicator{
+    margin-left:6px;padding:2px;
+  }
+  input[type=datetime-local]:focus{background:var(--surface-2);}
+
+  .hist-btn{
+    border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;padding:6px 10px;font-size:12.5px;
+    color:var(--ink-soft);cursor:pointer;text-align:left;width:100%;max-width:210px;font-family:var(--sans);
+  }
+  .hist-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .hist-btn .count{font-weight:650;color:var(--ink);}
+  .hist-btn .last{display:block;margin-top:2px;color:var(--ink-mute);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  .del-btn{border:none;background:transparent;color:var(--ink-mute);cursor:pointer;width:28px;height:28px;border-radius:6px;font-size:15px;}
+  .del-btn:hover{background:var(--red-bg);color:var(--red);}
+
+  .empty{padding:60px 20px;text-align:center;color:var(--ink-mute);}
+  .empty .big{font-size:15px;color:var(--ink);font-weight:600;margin-bottom:4px;}
+  .loading{padding:60px;text-align:center;color:var(--ink-mute);font-size:13px;}
+
+  /* kanban */
+  .kanban{display:none;gap:12px;overflow-x:auto;padding-bottom:6px;}
+  .kanban.open{display:flex;}
+  .kanban-col{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;min-width:230px;max-width:230px;
+    flex:none;display:flex;flex-direction:column;max-height:70vh;
+  }
+  .kanban-col-head{
+    padding:10px 12px;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:650;
+    display:flex;justify-content:space-between;align-items:center;background:var(--surface-2);
+    border-radius:12px 12px 0 0;
+  }
+  .kanban-col-body{padding:10px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
+  .kanban-col-body.drag-over{background:var(--accent-bg);}
+  .kcard{
+    background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;cursor:grab;
+  }
+  .kcard:active{cursor:grabbing;}
+  .kcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px;}
+  .kcard-name{font-size:13px;font-weight:650;}
+  .kcard-tel{display:flex;align-items:center;justify-content:space-between;gap:6px;font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-bottom:4px;}
+  .kcard-tel .phone-actions{margin-top:0;}
+  .kcard-call{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink-soft);margin-top:4px;}
+
+  /* modal */
+  .modal-backdrop{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);align-items:flex-start;justify-content:center;
+    padding:40px 16px;z-index:50;overflow-y:auto;
+  }
+  .modal-backdrop.open{display:flex;}
+  .modal{
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;width:100%;max-width:640px;
+    padding:22px 22px 18px;box-shadow:0 12px 40px rgba(0,0,0,.5);
+  }
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;}
+  .modal-title{font-size:17px;font-weight:650;margin:0;}
+  .modal-sub{font-size:12.5px;color:var(--ink-mute);margin:2px 0 14px;}
+  .close-btn{border:none;background:transparent;font-size:18px;color:var(--ink-mute);cursor:pointer;line-height:1;padding:4px;}
+  .close-btn:hover{color:var(--ink);}
+
+  .modal-field{margin-bottom:12px;}
+  .modal-field label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-mute);font-weight:650;display:block;margin-bottom:4px;}
+  .modal-field input[type=text]{width:100%;}
+
+  .new-entry{background:var(--surface-2);border-radius:10px;padding:12px;margin-bottom:16px;}
+  .new-entry label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-mute);font-weight:650;display:block;margin-bottom:4px;}
+  .new-entry input[type=datetime-local]{
+    width:100%;background:var(--surface);border:1px solid var(--line-strong);border-radius:7px;padding:6px 8px;
+    margin-bottom:8px;font-family:var(--mono);font-size:12.5px;
+  }
+  .new-entry textarea{
+    width:100%;min-height:110px;border:1px solid var(--line-strong);border-radius:7px;background:var(--surface);
+    font-family:var(--sans);font-size:13px;padding:8px;resize:vertical;margin-bottom:8px;color:var(--ink-mute);
+  }
+
+  .entry-list{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto;}
+  .entry{border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+  .entry-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .entry-date{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:650;}
+  .entry textarea{width:100%;border:none;background:transparent;font-family:var(--sans);font-size:13px;padding:2px;resize:vertical;min-height:76px;color:var(--ink-mute);}
+  .entry textarea:focus{background:var(--surface-2);border-radius:6px;outline:none;}
+  .entry-empty{color:var(--ink-mute);font-size:13px;text-align:center;padding:24px 0;}
+
+  #printArea{display:none;}
+  @media print{
+    body > *:not(#printArea){display:none !important;}
+    #printArea{display:block !important;background:#fff;color:#111;padding:20px;}
+    #printArea h2{font-size:18px;margin:0 0 4px;}
+    #printArea .meta{font-size:11px;color:#555;margin-bottom:14px;}
+    #printArea table{width:100%;border-collapse:collapse;font-size:11px;}
+    #printArea th, #printArea td{border:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top;}
+    #printArea th{background:#f0f0f0;}
+  }
+
+  @media (max-width:760px){
+    .wrap{padding:18px 14px 50px;}
+    .board{overflow-x:auto;}
+    table{min-width:1050px;}
+  }
+</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-row">
+    <div>
+      <p class="eyebrow">Meta Ads · CRM ligero</p>
+      <h1>Seguimiento de leads <span class="version-badge">v1.8</span> <span class="save-status" id="saveStatus"></span></h1>
+    </div>
+    <button class="btn wipe-btn" id="wipeBtn" title="Borra todos los leads del CRM">Vaciar CRM</button>
+  </div>
+
+  <div id="banner"></div>
+  <div class="stats" id="stats"></div>
+
+  <div class="stats-panel" id="statsPanel"></div>
+
+  <div class="toolbar">
+    <div class="view-toggle">
+      <button data-view="tabla" class="active">Tabla</button>
+      <button data-view="kanban">Tablero</button>
+    </div>
+    <input type="text" id="search" class="search" placeholder="Buscar por nombre o teléfono">
+    <div class="chips" id="chips"></div>
+    <div class="spacer"></div>
+    <button class="btn" id="statsToggle">Estadísticas</button>
+    <input type="file" id="importInput" accept=".csv,.json" style="display:none;">
+    <button class="btn" id="importBtn">Importar CSV / JSON</button>
+    <div class="export-wrap">
+      <button class="btn" id="exportToggle">Exportar ▾</button>
+      <div class="export-menu" id="exportMenu">
+        <button data-action="csv">Exportar como CSV</button>
+        <button data-action="pdf">Exportar como PDF</button>
+        <button data-action="json">Copia de respaldo (.json)</button>
+      </div>
+    </div>
+    <div class="export-wrap">
+      <button class="btn" id="driveToggle">☁ Drive ▾</button>
+      <div class="export-menu" id="driveMenu">
+        <button data-action="save">💾 Guardar partida</button>
+        <button data-action="load">📂 Cargar partida</button>
+        <button data-action="config">⚙ Configurar conexión</button>
+      </div>
+    </div>
+    <button class="btn" id="themeToggle">Modo claro</button>
+    <button class="btn primary" id="addTop">+ Nuevo lead</button>
+  </div>
+
+  <div class="board" id="tableBoard">
+    <div id="loading" class="loading">Cargando tus leads…</div>
+    <div id="tableWrap" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:190px;">Lead</th>
+            <th style="width:135px;">Teléfono</th>
+            <th style="width:125px;">Campaña</th>
+            <th style="width:225px;">Etiquetas</th>
+            <th style="width:135px;">Estado</th>
+            <th style="width:230px;">Próxima llamada</th>
+            <th>Historial de llamadas</th>
+            <th style="width:40px;"></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div id="emptyState" class="empty" style="display:none;">
+        <div class="big">Todavía no tienes leads cargados</div>
+        <div>Usa "+ Nuevo lead" o "Importar CSV / JSON" arriba para empezar.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kanban" id="kanban"></div>
+</div>
+
+<div id="printArea"></div>
+
+<div class="modal-backdrop" id="dialogBackdrop" style="z-index:80;">
+  <div class="modal" style="max-width:400px;">
+    <p class="modal-title" id="dialogTitle">Título</p>
+    <p class="modal-sub" id="dialogMessage" style="white-space:pre-line;"></p>
+    <div id="dialogInputWrap" style="display:none;margin-bottom:14px;">
+      <input type="text" id="dialogInput" style="width:100%;">
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn small" id="dialogCancel">Cancelar</button>
+      <button class="btn primary small" id="dialogOk">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <p class="modal-title" id="modalName">Lead</p>
+        <p class="modal-sub">Registra cada llamada con su hora real y lo que hablaron.</p>
+      </div>
+      <button class="close-btn" id="modalClose">✕</button>
+    </div>
+
+    <div class="modal-field">
+      <label>Etiquetas (separadas por coma)</label>
+      <input type="text" id="modalTags" placeholder="urgente, presupuesto alto...">
+    </div>
+
+    <div class="new-entry">
+      <label>Nueva llamada</label>
+      <input type="datetime-local" id="newEntryDate">
+      <div class="textarea-wrap">
+        <textarea id="newEntryNote" placeholder="Qué hablaron, objeciones, próximos pasos… o dicta con el micrófono"></textarea>
+        <button type="button" class="mic-btn" id="newEntryMic" title="Dictar por voz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></button>
+      </div>
+      <button class="btn primary small" id="newEntrySave">Guardar llamada</button>
+    </div>
+
+    <div class="entry-list" id="entryList"></div>
+  </div>
+</div>
+
+<script>
+const BASE_ESTADOS = [
+  {key:'nuevo', label:'Nuevo', peso:35},
+  {key:'contactado', label:'Contactado', peso:55},
+  {key:'interesado', label:'Interesado', peso:80},
+  {key:'noresponde', label:'No responde', peso:20},
+  {key:'nointeresado', label:'No interesado', peso:0},
+  {key:'cerrado', label:'Cerrado', peso:100},
+];
+const BASE_ESTADO_KEYS = new Set(BASE_ESTADOS.map(e=>e.key));
+let customEstados = [];
+let ESTADOS = BASE_ESTADOS.slice();
+
+function rebuildEstados(){ ESTADOS = BASE_ESTADOS.concat(customEstados); }
+
+async function loadCustomEstados(){
+  try{
+    const raw = await storageGet('custom-estados');
+    customEstados = raw ? JSON.parse(raw) : [];
+  }catch(e){ customEstados = []; }
+  rebuildEstados();
+}
+
+function slugify(str){
+  return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'') || 'estado';
+}
+
+async function addCustomEstado(){
+  const label = await dialogPrompt('Nombre del nuevo estado (por ejemplo: "En negociación"):', {title:'Nuevo estado', confirmLabel:'Agregar'});
+  if(!label || !label.trim()) return;
+  let key = slugify(label.trim());
+  let i = 1;
+  while(ESTADOS.some(e => e.key === key)){ key = slugify(label.trim()) + (i++); }
+  customEstados.push({ key, label: label.trim(), peso: 45 });
+  rebuildEstados();
+  storageSet('custom-estados', JSON.stringify(customEstados));
+  render();
+}
+
+async function removeCustomEstado(key){
+  const meta = ESTADOS.find(e=>e.key===key);
+  if(!meta) return;
+  const ok = await dialogConfirm(`¿Eliminar el estado "${meta.label}"? Los leads que lo tengan pasarán a "Nuevo".`, {title:'Eliminar estado', danger:true, confirmLabel:'Eliminar'});
+  if(!ok) return;
+  customEstados = customEstados.filter(e => e.key !== key);
+  rebuildEstados();
+  storageSet('custom-estados', JSON.stringify(customEstados));
+  leads.forEach(l => { if(l.estado === key) l.estado = 'nuevo'; });
+  if(filterEstado === key) filterEstado = 'todos';
+  scheduleSave();
+  render();
+}
+
+/* colores: los 6 estados base tienen su propio matiz; los personalizados
+   reciclan la misma paleta en orden, para que nunca se vean "sin estilo". */
+const ESTADO_COLOR_CYCLE = [
+  ['--blue-bg','--blue','--blue-line'],
+  ['--amber-bg','--amber','--amber-line'],
+  ['--teal-bg','--teal','--teal-line'],
+  ['--red-bg','--red','--red-line'],
+  ['--green-bg','--green','--green-line'],
+  ['--gray-bg','--gray','--gray-line'],
+];
+function estadoColorVars(key){
+  const fixed = {
+    nuevo: ESTADO_COLOR_CYCLE[0], contactado: ESTADO_COLOR_CYCLE[1], interesado: ESTADO_COLOR_CYCLE[2],
+    noresponde: ESTADO_COLOR_CYCLE[5], nointeresado: ESTADO_COLOR_CYCLE[3], cerrado: ESTADO_COLOR_CYCLE[4],
+  };
+  if(fixed[key]) return fixed[key];
+  const idx = customEstados.findIndex(e=>e.key===key);
+  return ESTADO_COLOR_CYCLE[idx % ESTADO_COLOR_CYCLE.length];
+}
+function estadoStyle(key){
+  const [bg,col,line] = estadoColorVars(key);
+  return `background:var(${bg});color:var(${col});border-color:var(${line});`;
+}
+
+let leads = [];
+let filterEstado = 'todos';
+let searchTerm = '';
+let saveTimer = null;
+let activeLeadId = null;
+let currentView = 'tabla';
+let titleFlashTimer = null;
+const ORIGINAL_TITLE = document.title;
+
+const iconCopy = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+const iconWhatsapp = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2zm5.8 14.12c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.1.11-1.78-.11-.41-.13-.94-.3-1.62-.6-2.85-1.23-4.71-4.1-4.85-4.29-.14-.19-1.16-1.54-1.16-2.95 0-1.4.73-2.09 1-2.38.26-.28.57-.35.76-.35h.55c.18 0 .42-.07.65.5.24.58.81 2 .88 2.15.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.48-.14.14-.28.29-.12.57.16.28.7 1.16 1.51 1.88 1.04.93 1.92 1.22 2.2 1.36.28.14.44.12.6-.07.16-.19.68-.79.86-1.06.18-.28.36-.23.6-.14.24.09 1.55.73 1.82.87.27.14.45.2.51.32.07.12.07.68-.17 1.36z"></path></svg>';
+const iconMic = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>';
+
+function uid(){ return 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+/* Diálogo propio: reemplaza confirm()/alert()/prompt() nativos, que pueden quedar
+   bloqueados dentro del recuadro protegido de Claude. type: 'confirm' | 'alert' | 'prompt' */
+function openDialog(opts){
+  return new Promise(resolve=>{
+    const backdrop = document.getElementById('dialogBackdrop');
+    document.getElementById('dialogTitle').textContent = opts.title || '';
+    document.getElementById('dialogMessage').textContent = opts.message || '';
+    const inputWrap = document.getElementById('dialogInputWrap');
+    const input = document.getElementById('dialogInput');
+    const cancelBtn = document.getElementById('dialogCancel');
+    const okBtn = document.getElementById('dialogOk');
+
+    inputWrap.style.display = opts.type === 'prompt' ? 'block' : 'none';
+    if(opts.type === 'prompt'){ input.value = opts.defaultValue || ''; }
+    cancelBtn.style.display = opts.type === 'alert' ? 'none' : 'inline-flex';
+    okBtn.textContent = opts.confirmLabel || (opts.type === 'alert' ? 'Entendido' : 'Aceptar');
+    okBtn.className = 'btn small ' + (opts.danger ? 'danger' : 'primary');
+
+    backdrop.classList.add('open');
+    if(opts.type === 'prompt') setTimeout(()=> input.focus(), 50);
+
+    function cleanup(){
+      backdrop.classList.remove('open');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      input.removeEventListener('keydown', onKey);
+    }
+    function onOk(){
+      cleanup();
+      resolve(opts.type === 'prompt' ? (input.value.trim() || null) : true);
+    }
+    function onCancel(){
+      cleanup();
+      resolve(opts.type === 'prompt' ? null : false);
+    }
+    function onKey(e){ if(e.key === 'Enter') onOk(); }
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    input.addEventListener('keydown', onKey);
+  });
+}
+function dialogConfirm(message, opts){ return openDialog(Object.assign({type:'confirm', message}, opts)); }
+function dialogAlert(message, opts){ return openDialog(Object.assign({type:'alert', message}, opts)); }
+function dialogPrompt(message, opts){ return openDialog(Object.assign({type:'prompt', message}, opts)); }
+
+/* Capa de guardado: usa window.storage cuando la app corre dentro de Claude (ligado a tu cuenta).
+   Si se abre el archivo directamente en el navegador, ese sistema no existe, así que
+   respaldamos automáticamente en localStorage para que igual quede guardado en este navegador. */
+async function storageGet(key){
+  try{
+    if(window.storage){
+      const res = await window.storage.get(key);
+      return res ? res.value : null;
+    }
+  }catch(e){ /* seguimos con el respaldo */ }
+  try{ return localStorage.getItem(key); }catch(e){ return null; }
+}
+async function storageSet(key, value){
+  try{
+    if(window.storage){ await window.storage.set(key, value, false); return; }
+  }catch(e){ /* seguimos con el respaldo */ }
+  try{ localStorage.setItem(key, value); }catch(e){ /* no se pudo guardar */ }
+}
+
+async function loadLeads(){
+  try{
+    const raw = await storageGet('leads-data');
+    leads = raw ? JSON.parse(raw) : [];
+  }catch(e){ leads = []; }
+  leads.forEach(l => {
+    if(!Array.isArray(l.llamadas)) l.llamadas = [];
+    if(!Array.isArray(l.tags)) l.tags = [];
+  });
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('tableWrap').style.display = 'block';
+  render();
+}
+
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  const statusEl = document.getElementById('saveStatus');
+  if(statusEl){ statusEl.textContent = 'Guardando…'; statusEl.className = 'save-status saving'; }
+  saveTimer = setTimeout(async ()=>{
+    await storageSet('leads-data', JSON.stringify(leads));
+    if(statusEl){ statusEl.textContent = 'Guardado ✓'; statusEl.className = 'save-status saved'; }
+  }, 350);
+}
+
+function toLocalInputValue(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function formatDisplay(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2,'0');
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function callStatus(iso){
+  if(!iso) return 'none';
+  const call = new Date(iso);
+  const now = new Date();
+  if(call < now) return 'overdue';
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
+  if(call >= startToday && call < endToday) return 'today';
+  return 'future';
+}
+
+function lastActivityDate(lead){
+  let last = lead.creado ? new Date(lead.creado) : null;
+  (lead.llamadas||[]).forEach(e=>{
+    const d = new Date(e.fecha);
+    if(!last || d > last) last = d;
+  });
+  return last;
+}
+
+function computeScore(lead){
+  const meta = ESTADOS.find(e=>e.key===lead.estado);
+  let score = meta ? meta.peso : 30;
+  const last = lastActivityDate(lead);
+  if(last){
+    const days = (Date.now() - last.getTime()) / 86400000;
+    if(days <= 1) score += 8;
+    else if(days <= 3) score += 3;
+    else if(days > 10) score -= 15;
+    else if(days > 5) score -= 7;
+  }
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function scoreClass(score){
+  if(score >= 70) return 'score-hi';
+  if(score >= 40) return 'score-mid';
+  return 'score-lo';
+}
+
+function normalizePhone(str){
+  return (str||'').replace(/\D/g,'');
+}
+
+function duplicateIds(){
+  const counts = {};
+  leads.forEach(l=>{
+    const n = normalizePhone(l.telefono);
+    if(n.length < 7) return;
+    (counts[n] = counts[n] || []).push(l.id);
+  });
+  const dup = new Set();
+  Object.values(counts).forEach(ids => { if(ids.length > 1) ids.forEach(id => dup.add(id)); });
+  return dup;
+}
+
+function addLead(atTop, data){
+  const lead = Object.assign({
+    id: uid(), nombre:'', telefono:'', campana:'', estado:'nuevo',
+    proximaLlamada:'', tags:[], llamadas:[], creado: new Date().toISOString()
+  }, data || {});
+  if(atTop) leads.unshift(lead); else leads.push(lead);
+  return lead;
+}
+
+function deleteLead(id){
+  leads = leads.filter(l => l.id !== id);
+  scheduleSave();
+  render();
+}
+
+function updateLead(id, field, value){
+  const lead = leads.find(l => l.id === id);
+  if(!lead) return;
+  lead[field] = value;
+  scheduleSave();
+  if(['estado','proximaLlamada'].includes(field)) render();
+}
+
+function estadoLabel(key){
+  const found = ESTADOS.find(e => e.key === key);
+  return found ? found.label : key;
+}
+
+/* ---------- stats / banner ---------- */
+
+function updateBanner(){
+  const overdue = leads.filter(l => callStatus(l.proximaLlamada) === 'overdue').length;
+  const banner = document.getElementById('banner');
+  if(overdue > 0){
+    banner.innerHTML = `<div class="banner">▲ Tienes ${overdue} llamada${overdue===1?'':'s'} vencida${overdue===1?'':'s'}. Revísalas cuanto antes.</div>`;
+    if(!titleFlashTimer){
+      let flip = false;
+      titleFlashTimer = setInterval(()=>{
+        document.title = flip ? ORIGINAL_TITLE : `(${overdue}) Llamadas vencidas`;
+        flip = !flip;
+      }, 1500);
+    }
+  }else{
+    banner.innerHTML = '';
+    if(titleFlashTimer){ clearInterval(titleFlashTimer); titleFlashTimer = null; document.title = ORIGINAL_TITLE; }
+  }
+}
+
+function renderStats(){
+  const total = leads.length;
+  const today = leads.filter(l => callStatus(l.proximaLlamada) === 'today').length;
+  const overdue = leads.filter(l => callStatus(l.proximaLlamada) === 'overdue').length;
+  const won = leads.filter(l => l.estado === 'cerrado').length;
+  const dups = duplicateIds().size;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="num">${total}</div><div class="lbl">Leads totales</div></div>
+    <div class="stat today"><div class="num">${today}</div><div class="lbl">Llamadas hoy</div></div>
+    <div class="stat overdue"><div class="num">${overdue}</div><div class="lbl">Vencidas</div></div>
+    <div class="stat won"><div class="num">${won}</div><div class="lbl">Cerrados</div></div>
+    <div class="stat dup"><div class="num">${dups}</div><div class="lbl">Teléfonos duplicados</div></div>
+  `;
+}
+
+function renderStatsPanel(){
+  const panel = document.getElementById('statsPanel');
+  const total = leads.length || 1;
+  const porEstado = ESTADOS.map(e => ({label:e.label, count: leads.filter(l=>l.estado===e.key).length}));
+  const maxEstado = Math.max(1, ...porEstado.map(e=>e.count));
+
+  const campCounts = {};
+  leads.forEach(l => { const c = (l.campana||'Sin campaña').trim() || 'Sin campaña'; campCounts[c] = (campCounts[c]||0)+1; });
+  const topCamp = Object.entries(campCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxCamp = Math.max(1, ...topCamp.map(c=>c[1]));
+
+  const cerrados = leads.filter(l=>l.estado==='cerrado');
+  const convRate = Math.round((cerrados.length / total) * 100);
+  const avgLlamadas = cerrados.length ? (cerrados.reduce((s,l)=> s + (l.llamadas||[]).length, 0) / cerrados.length).toFixed(1) : '—';
+
+  panel.innerHTML = `
+    <h3>Estadísticas</h3>
+    <div class="stats-grid">
+      <div>
+        <p class="stats-col-title">Leads por estado</p>
+        ${porEstado.map(e => `
+          <div class="bar-row">
+            <span class="bar-label">${e.label}</span>
+            <span class="bar-track"><span class="bar-fill" style="width:${(e.count/maxEstado*100).toFixed(0)}%"></span></span>
+            <span class="bar-count">${e.count}</span>
+          </div>`).join('')}
+      </div>
+      <div>
+        <p class="stats-col-title">Top campañas</p>
+        ${topCamp.length ? topCamp.map(([name,count]) => `
+          <div class="bar-row">
+            <span class="bar-label">${escapeHtml(name)}</span>
+            <span class="bar-track"><span class="bar-fill" style="width:${(count/maxCamp*100).toFixed(0)}%"></span></span>
+            <span class="bar-count">${count}</span>
+          </div>`).join('') : '<p style="font-size:12.5px;color:var(--ink-mute);">Sin datos todavía.</p>'}
+      </div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="num">${convRate}%</div><div class="lbl">Tasa de cierre</div></div>
+      <div class="kpi"><div class="num">${avgLlamadas}</div><div class="lbl">Llamadas promedio hasta cerrar</div></div>
+      <div class="kpi"><div class="num">${duplicateIds().size}</div><div class="lbl">Teléfonos duplicados</div></div>
+    </div>
+  `;
+}
+
+function renderChips(){
+  const counts = {};
+  ESTADOS.forEach(e => counts[e.key] = leads.filter(l=>l.estado===e.key).length);
+  let html = `<button class="chip ${filterEstado==='todos'?'active':''}" data-estado="todos">Todos (${leads.length})</button>`;
+  ESTADOS.forEach(e=>{
+    const isCustom = !BASE_ESTADO_KEYS.has(e.key);
+    html += `<button class="chip ${filterEstado===e.key?'active':''}" data-estado="${e.key}">${e.label} (${counts[e.key]})${isCustom ? ` <span data-remove-estado="${e.key}" title="Eliminar este estado" style="margin-left:4px;opacity:.6;">✕</span>` : ''}</button>`;
+  });
+  html += `<button class="chip" id="addEstadoChip" style="border-style:dashed;">+ Nuevo estado</button>`;
+  document.getElementById('chips').innerHTML = html;
+  document.querySelectorAll('.chip[data-estado]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      if(e.target.dataset.removeEstado) return; // el click de eliminar se maneja aparte
+      filterEstado = btn.dataset.estado; render();
+    });
+  });
+  document.querySelectorAll('[data-remove-estado]').forEach(x=>{
+    x.addEventListener('click', (e)=>{ e.stopPropagation(); removeCustomEstado(x.dataset.removeEstado); });
+  });
+  const addBtn = document.getElementById('addEstadoChip');
+  if(addBtn) addBtn.addEventListener('click', addCustomEstado);
+}
+
+function visibleLeads(){
+  let list = leads.slice();
+  if(filterEstado !== 'todos') list = list.filter(l => l.estado === filterEstado);
+  if(searchTerm.trim()){
+    const t = searchTerm.trim().toLowerCase();
+    list = list.filter(l => (l.nombre||'').toLowerCase().includes(t) || (l.telefono||'').toLowerCase().includes(t));
+  }
+  list.sort((a,b)=>{
+    if(!a.proximaLlamada && !b.proximaLlamada) return 0;
+    if(!a.proximaLlamada) return 1;
+    if(!b.proximaLlamada) return -1;
+    return new Date(a.proximaLlamada) - new Date(b.proximaLlamada);
+  });
+  return list;
+}
+
+function estadoOptions(current){
+  return ESTADOS.map(e => `<option value="${e.key}" ${e.key===current?'selected':''}>${e.label}</option>`).join('');
+}
+
+/* ---------- tabla ---------- */
+
+function renderRows(){
+  const list = visibleLeads();
+  const tbody = document.getElementById('tbody');
+  const dup = duplicateIds();
+  document.getElementById('emptyState').style.display = leads.length===0 ? 'block' : 'none';
+
+  tbody.innerHTML = list.map(l => {
+    const status = callStatus(l.proximaLlamada);
+    const sorted = (l.llamadas||[]).slice().sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+    const count = sorted.length;
+    const lastPreview = count ? (sorted[0].nota ? sorted[0].nota.slice(0,36)+(sorted[0].nota.length>36?'…':'') : 'Sin nota') : 'Aún sin llamadas';
+    const score = computeScore(l);
+    const isDup = dup.has(l.id);
+    return `
+    <tr data-id="${l.id}">
+      <td style="border-left:3px solid var(${estadoColorVars(l.estado)[1]});">
+        <div class="lead-cell">
+          <input class="nombre-input" data-field="nombre" placeholder="Nombre del lead" value="${escapeHtml(l.nombre)}">
+          <span class="score-pill ${scoreClass(score)}" title="Puntaje de prioridad">${score}</span>
+        </div>
+      </td>
+      <td>
+        <input class="tel-input ${isDup?'dup':''}" data-field="telefono" placeholder="+52 55 0000 0000" value="${escapeHtml(l.telefono)}">
+        <div class="phone-actions">
+          <button class="icon-btn ${l.telefono?'':'disabled'}" data-action="copy-tel" title="Copiar teléfono">${iconCopy}</button>
+          <a class="icon-btn wa ${l.telefono?'':'disabled'}" href="https://wa.me/${normalizePhone(l.telefono)}" target="_blank" rel="noopener" title="Abrir en WhatsApp">${iconWhatsapp}</a>
+        </div>
+        ${isDup ? '<span class="dup-flag">⚠ duplicado</span>' : ''}
+      </td>
+      <td><input class="camp-input" data-field="campana" placeholder="Campaña / anuncio" value="${escapeHtml(l.campana)}"></td>
+      <td><input class="tags-input" data-field="tags" placeholder="urgente, vip..." value="${escapeHtml((l.tags||[]).join(', '))}"></td>
+      <td><select class="estado-select" style="${estadoStyle(l.estado)}" data-field="estado">${estadoOptions(l.estado)}</select></td>
+      <td>
+        <div class="call-cell">
+          <span class="dot ${status}" title="${status==='overdue'?'Vencida':status==='today'?'Hoy':status==='future'?'Programada':'Sin fecha'}"></span>
+          <input type="datetime-local" data-field="proximaLlamada" value="${toLocalInputValue(l.proximaLlamada)}">
+        </div>
+      </td>
+      <td>
+        <button class="hist-btn" data-action="hist"><span class="count">${count} llamada${count===1?'':'s'}</span><span class="last">${escapeHtml(lastPreview)}</span></button>
+      </td>
+      <td><button class="del-btn" data-action="del" title="Eliminar lead">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    const id = tr.dataset.id;
+    tr.querySelectorAll('[data-field]').forEach(input=>{
+      const field = input.dataset.field;
+      const evt = (input.tagName==='SELECT' || input.type==='datetime-local') ? 'change' : 'input';
+      input.addEventListener(evt, ()=>{
+        let val = input.value;
+        if(field === 'proximaLlamada' && val) val = new Date(val).toISOString();
+        if(field === 'tags') val = val.split(',').map(s=>s.trim()).filter(Boolean);
+        updateLead(id, field, val);
+        if(field === 'estado'){
+          input.setAttribute('style', estadoStyle(val));
+          tr.querySelector('td').style.borderLeft = `3px solid var(${estadoColorVars(val)[1]})`;
+        }
+      });
+      if(field === 'telefono'){
+        input.addEventListener('blur', ()=> render());
+      }
+    });
+    tr.querySelector('[data-action="del"]').addEventListener('click', async ()=>{
+      const ok = await dialogConfirm('¿Eliminar este lead? Esta acción no se puede deshacer.', {title:'Eliminar lead', danger:true, confirmLabel:'Eliminar'});
+      if(ok) deleteLead(id);
+    });
+    tr.querySelector('[data-action="hist"]').addEventListener('click', ()=> openModal(id));
+    const copyBtn = tr.querySelector('[data-action="copy-tel"]');
+    if(copyBtn){
+      copyBtn.addEventListener('click', async ()=>{
+        const lead = leads.find(l=>l.id===id);
+        if(!lead || !lead.telefono) return;
+        try{ await navigator.clipboard.writeText(lead.telefono); }
+        catch(e){ /* algunos navegadores requieren interacción extra, se ignora */ }
+        copyBtn.classList.add('copied');
+        const original = copyBtn.innerHTML;
+        copyBtn.innerHTML = '✓';
+        setTimeout(()=>{ copyBtn.innerHTML = original; copyBtn.classList.remove('copied'); }, 1200);
+      });
+    }
+  });
+}
+
+/* ---------- kanban ---------- */
+
+function renderKanban(){
+  const kb = document.getElementById('kanban');
+  const list = visibleLeads();
+  kb.innerHTML = ESTADOS.map(e => {
+    const cards = list.filter(l => l.estado === e.key);
+    return `
+    <div class="kanban-col">
+      <div class="kanban-col-head"><span>${e.label}</span><span>${cards.length}</span></div>
+      <div class="kanban-col-body" data-estado="${e.key}">
+        ${cards.map(l => {
+          const score = computeScore(l);
+          const status = callStatus(l.proximaLlamada);
+          return `
+          <div class="kcard" draggable="true" data-id="${l.id}">
+            <div class="kcard-top">
+              <span class="kcard-name">${escapeHtml(l.nombre)||'Sin nombre'}</span>
+              <span class="score-pill ${scoreClass(score)}">${score}</span>
+            </div>
+            <div class="kcard-tel">
+              <span>${escapeHtml(l.telefono)||'Sin teléfono'}</span>
+              <div class="phone-actions">
+                <button class="icon-btn ${l.telefono?'':'disabled'}" data-action="copy-tel" title="Copiar teléfono">${iconCopy}</button>
+                <a class="icon-btn wa ${l.telefono?'':'disabled'}" href="https://wa.me/${normalizePhone(l.telefono)}" target="_blank" rel="noopener" title="Abrir en WhatsApp" onclick="event.stopPropagation()">${iconWhatsapp}</a>
+              </div>
+            </div>
+            ${(l.tags||[]).map(t=>`<span class="tag-chip">${escapeHtml(t)}</span>`).join('')}
+            <div class="kcard-call"><span class="dot ${status}"></span>${l.proximaLlamada ? formatDisplay(l.proximaLlamada) : 'Sin llamada agendada'}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  kb.querySelectorAll('.kcard').forEach(card=>{
+    card.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', card.dataset.id); });
+    card.addEventListener('click', (e)=>{ if(!e.target.closest('[data-action="copy-tel"]') && !e.target.closest('.wa')) openModal(card.dataset.id); });
+    const copyBtn = card.querySelector('[data-action="copy-tel"]');
+    if(copyBtn){
+      copyBtn.addEventListener('click', async (e)=>{
+        e.stopPropagation();
+        const lead = leads.find(l=>l.id===card.dataset.id);
+        if(!lead || !lead.telefono) return;
+        try{ await navigator.clipboard.writeText(lead.telefono); }catch(err){ /* se ignora */ }
+        copyBtn.classList.add('copied');
+        const original = copyBtn.innerHTML;
+        copyBtn.innerHTML = '✓';
+        setTimeout(()=>{ copyBtn.innerHTML = original; copyBtn.classList.remove('copied'); }, 1200);
+      });
+    }
+  });
+  kb.querySelectorAll('.kanban-col-body').forEach(col=>{
+    col.addEventListener('dragover', (e)=>{ e.preventDefault(); col.classList.add('drag-over'); });
+    col.addEventListener('dragleave', ()=> col.classList.remove('drag-over'));
+    col.addEventListener('drop', (e)=>{
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      updateLead(id, 'estado', col.dataset.estado);
+    });
+  });
+}
+
+/* ---------- modal historial ---------- */
+
+function openModal(id){
+  activeLeadId = id;
+  const lead = leads.find(l=>l.id===id);
+  if(!lead) return;
+  document.getElementById('modalName').textContent = lead.nombre ? lead.nombre : 'Lead sin nombre';
+  document.getElementById('modalTags').value = (lead.tags||[]).join(', ');
+  const now = new Date();
+  document.getElementById('newEntryDate').value = toLocalInputValue(now.toISOString());
+  document.getElementById('newEntryNote').value = '';
+  const micBtn = document.getElementById('newEntryMic');
+  micBtn.replaceWith(micBtn.cloneNode(true)); // limpia listeners de aperturas anteriores
+  attachMic(document.getElementById('newEntryMic'), document.getElementById('newEntryNote'));
+  renderEntries();
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modalBackdrop').classList.remove('open');
+  activeLeadId = null;
+  render();
+}
+
+function renderEntries(){
+  const lead = leads.find(l=>l.id===activeLeadId);
+  const list = document.getElementById('entryList');
+  if(!lead || !lead.llamadas.length){
+    list.innerHTML = `<div class="entry-empty">Todavía no registraste llamadas con este lead.</div>`;
+    return;
+  }
+  const sorted = lead.llamadas.slice().sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+  list.innerHTML = sorted.map(entry => `
+    <div class="entry" data-entry-id="${entry.id}">
+      <div class="entry-top">
+        <span class="entry-date">${formatDisplay(entry.fecha)}</span>
+        <button class="del-btn" data-action="del-entry" title="Eliminar llamada">✕</button>
+      </div>
+      <div class="textarea-wrap">
+        <textarea placeholder="Nota de esta llamada...">${escapeHtml(entry.nota||'')}</textarea>
+        <button type="button" class="mic-btn" data-action="mic-entry" title="Dictar por voz">${iconMic}</button>
+      </div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.entry').forEach(card=>{
+    const entryId = card.dataset.entryId;
+    const textarea = card.querySelector('textarea');
+    textarea.addEventListener('blur', (e)=>{
+      const l = leads.find(l=>l.id===activeLeadId);
+      const en = l.llamadas.find(x=>x.id===entryId);
+      if(en){ en.nota = e.target.value; scheduleSave(); }
+    });
+    card.querySelector('[data-action="del-entry"]').addEventListener('click', ()=>{
+      const l = leads.find(l=>l.id===activeLeadId);
+      l.llamadas = l.llamadas.filter(x=>x.id!==entryId);
+      scheduleSave();
+      renderEntries();
+    });
+    attachMic(card.querySelector('[data-action="mic-entry"]'), textarea, (val)=>{
+      const l = leads.find(l=>l.id===activeLeadId);
+      const en = l.llamadas.find(x=>x.id===entryId);
+      if(en){ en.nota = val; scheduleSave(); }
+    });
+  });
+}
+
+function localCleanup(text){
+  let t = text.trim().replace(/\s+/g, ' ');
+  if(!t) return t;
+  // separa en frases aproximadas cuando hay pausas largas dictadas como "eh", "o sea", etc. se dejan tal cual,
+  // pero al menos capitalizamos y puntuamos lo básico para que no quede todo corrido.
+  t = t.charAt(0).toUpperCase() + t.slice(1);
+  t = t.replace(/([.!?])\s*([a-záéíóúñ])/g, (m, p1, p2) => p1 + ' ' + p2.toUpperCase());
+  if(!/[.!?]$/.test(t)) t += '.';
+  return t;
+}
+
+async function summarizeNote(rawText){
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 300,
+        messages: [{
+          role: "user",
+          content: `Esta es una transcripción de voz de una nota de llamada de ventas, dictada de corrido y sin puntuación. Reescríbela como una nota breve, clara y bien puntuada en español, quedándote solo con lo importante (sin relleno ni repeticiones). Responde ÚNICAMENTE con la nota final, sin explicaciones ni comillas.\n\nTranscripción:\n${rawText}`
+        }]
+      })
+    });
+    if(!response.ok) throw new Error('respuesta no válida');
+    const data = await response.json();
+    const block = (data.content || []).find(b => b.type === 'text');
+    if(block && block.text.trim()) return { text: block.text.trim(), ok: true };
+    throw new Error('sin contenido');
+  }catch(e){
+    return { text: localCleanup(rawText), ok: false };
+  }
+}
+
+function showToast(msg){
+  let toast = document.getElementById('toast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = `position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${'var(--surface-2)'};
+      color:var(--ink);border:1px solid var(--line-strong);border-radius:10px;padding:10px 16px;font-size:12.5px;
+      z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:320px;text-align:center;`;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(()=>{ toast.style.display = 'none'; }, 4000);
+}
+
+function attachMic(btn, textarea, onUpdate){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){
+    btn.classList.add('disabled');
+    btn.title = 'Dictado por voz no disponible en este navegador';
+    return;
+  }
+  let recognition = null;
+  let listening = false;
+  let rawSegment = '';
+  btn.addEventListener('click', ()=>{
+    if(listening){ recognition && recognition.stop(); return; }
+    rawSegment = '';
+    recognition = new SR();
+    recognition.lang = 'es-ES';
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.onresult = (e)=>{
+      let text = '';
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal) text += e.results[i][0].transcript + ' ';
+      }
+      rawSegment += text;
+    };
+    recognition.onend = async ()=>{
+      listening = false;
+      btn.classList.remove('recording');
+      const trimmed = rawSegment.trim();
+      if(!trimmed) return;
+      btn.classList.add('processing');
+      btn.disabled = true;
+      const result = await summarizeNote(trimmed);
+      btn.classList.remove('processing');
+      btn.disabled = false;
+      textarea.value = (textarea.value.trim() ? textarea.value.trim() + '\n' : '') + result.text;
+      if(onUpdate) onUpdate(textarea.value);
+      if(!result.ok){
+        showToast('No se pudo resumir con IA en este momento (se aplicó solo una limpieza básica). Esto funciona completo cuando abres la app desde la vista previa de Claude.');
+      }
+    };
+    recognition.onerror = (e)=>{
+      listening = false;
+      btn.classList.remove('recording');
+      if(e.error === 'not-allowed') showToast('Necesitas dar permiso de micrófono en el navegador para poder dictar.');
+    };
+    recognition.start();
+    listening = true;
+    btn.classList.add('recording');
+  });
+}
+
+document.getElementById('modalTags').addEventListener('input', (e)=>{
+  const lead = leads.find(l=>l.id===activeLeadId);
+  if(!lead) return;
+  lead.tags = e.target.value.split(',').map(s=>s.trim()).filter(Boolean);
+  scheduleSave();
+});
+
+document.getElementById('newEntrySave').addEventListener('click', ()=>{
+  const lead = leads.find(l=>l.id===activeLeadId);
+  if(!lead) return;
+  const dateVal = document.getElementById('newEntryDate').value;
+  const noteVal = document.getElementById('newEntryNote').value;
+  if(!dateVal){ showToast('Elige la hora de la llamada.'); return; }
+  lead.llamadas.push({ id: uid(), fecha: new Date(dateVal).toISOString(), nota: noteVal });
+  scheduleSave();
+  document.getElementById('newEntryNote').value = '';
+  document.getElementById('newEntryDate').value = toLocalInputValue(new Date().toISOString());
+  renderEntries();
+});
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalBackdrop').addEventListener('click', (e)=>{
+  if(e.target.id === 'modalBackdrop') closeModal();
+});
+
+/* ---------- exportar ---------- */
+
+function csvEscape(val){
+  const s = (val === undefined || val === null) ? '' : String(val);
+  if(/[",\n;]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+  return s;
+}
+
+function exportCSV(){
+  const rows = [['Nombre','Teléfono','Campaña','Etiquetas','Estado','Próxima llamada','Llamadas registradas','Última nota']];
+  visibleLeads().forEach(l=>{
+    const sorted = (l.llamadas||[]).slice().sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+    const last = sorted[0] ? `${formatDisplay(sorted[0].fecha)} - ${sorted[0].nota||''}` : '';
+    rows.push([
+      l.nombre||'', l.telefono||'', l.campana||'', (l.tags||[]).join('; '), estadoLabel(l.estado),
+      l.proximaLlamada ? formatDisplay(l.proximaLlamada) : '', String((l.llamadas||[]).length), last
+    ]);
+  });
+  const csvContent = rows.map(r => r.map(csvEscape).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csvContent], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `leads-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportPDF(){
+  const list = visibleLeads();
+  const rowsHtml = list.map(l=>{
+    const sorted = (l.llamadas||[]).slice().sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+    const last = sorted[0] ? `${formatDisplay(sorted[0].fecha)} — ${sorted[0].nota||''}` : '—';
+    return `<tr>
+      <td>${escapeHtml(l.nombre)||'—'}</td>
+      <td>${escapeHtml(l.telefono)||'—'}</td>
+      <td>${escapeHtml(l.campana)||'—'}</td>
+      <td>${escapeHtml((l.tags||[]).join(', '))||'—'}</td>
+      <td>${estadoLabel(l.estado)}</td>
+      <td>${l.proximaLlamada ? formatDisplay(l.proximaLlamada) : '—'}</td>
+      <td>${(l.llamadas||[]).length}</td>
+      <td>${escapeHtml(last)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('printArea').innerHTML = `
+    <h2>Seguimiento de leads · Meta Ads</h2>
+    <div class="meta">Exportado el ${formatDisplay(new Date().toISOString())} · ${list.length} lead${list.length===1?'':'s'}</div>
+    <table>
+      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Campaña</th><th>Etiquetas</th><th>Estado</th><th>Próxima llamada</th><th>Llamadas</th><th>Última nota</th></tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>`;
+  window.print();
+}
+
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(leads, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `leads-respaldo-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function importJSON(text){
+  let incoming;
+  try{ incoming = JSON.parse(text); }
+  catch(e){ await dialogAlert('Ese archivo JSON no se pudo leer, revisa que sea un respaldo válido de esta app.', {title:'Archivo inválido'}); return; }
+  if(!Array.isArray(incoming)){ await dialogAlert('El archivo no tiene el formato esperado.', {title:'Archivo inválido'}); return; }
+  const existingIds = new Set(leads.map(l=>l.id));
+  let added = 0;
+  incoming.forEach(obj=>{
+    if(obj && obj.id && existingIds.has(obj.id)) return; // ya existe, evita duplicar el mismo respaldo
+    leads.push(Object.assign({
+      id: uid(), nombre:'', telefono:'', campana:'', estado:'nuevo',
+      proximaLlamada:'', tags:[], llamadas:[], creado: new Date().toISOString()
+    }, obj || {}, { id: (obj && obj.id) || uid() }));
+    added++;
+  });
+  scheduleSave();
+  render();
+  await dialogAlert(`Se restauraron ${added} lead${added===1?'':'s'} desde el respaldo (con su historial completo de llamadas).`, {title:'Importación completa'});
+}
+
+async function clearAllLeads(){
+  if(!leads.length){ await dialogAlert('El CRM ya está vacío.', {title:'Nada que borrar'}); return; }
+  const step1 = await dialogConfirm(
+    `Esto va a borrar TODOS tus ${leads.length} leads permanentemente, incluido su historial de llamadas.\n\n¿Ya exportaste un respaldo? Puedes hacerlo desde "Exportar" antes de continuar.`,
+    {title:'Vaciar todo el CRM', danger:true, confirmLabel:'Sí, continuar'}
+  );
+  if(!step1) return;
+  const step2 = await dialogConfirm(
+    'Última confirmación: se va a vaciar todo el CRM y no se puede deshacer.',
+    {title:'¿Estás completamente seguro?', danger:true, confirmLabel:'Sí, vaciar todo'}
+  );
+  if(!step2) return;
+  leads = [];
+  scheduleSave();
+  render();
+}
+
+document.getElementById('wipeBtn').addEventListener('click', clearAllLeads);
+
+/* ---------- Google Drive: "guardar partida" / "cargar partida" ---------- */
+
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_FILENAME = 'leads-crm-respaldo.json';
+let driveClientId = null;
+let driveTokenClient = null;
+let driveAccessToken = null;
+
+async function loadDriveClientId(){
+  try{ driveClientId = await storageGet('drive-client-id'); }catch(e){ driveClientId = null; }
+}
+
+function ensureDriveClient(){
+  if(!driveClientId) return false;
+  if(!driveTokenClient && window.google && google.accounts){
+    driveTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: driveClientId,
+      scope: DRIVE_SCOPE,
+      callback: '',
+    });
+  }
+  return !!driveTokenClient;
+}
+
+function getDriveToken(){
+  return new Promise((resolve, reject)=>{
+    if(!ensureDriveClient()){ reject(new Error('sin configurar')); return; }
+    driveTokenClient.callback = (resp)=>{
+      if(resp.error){ reject(resp); return; }
+      driveAccessToken = resp.access_token;
+      resolve(driveAccessToken);
+    };
+    driveTokenClient.requestAccessToken({ prompt: driveAccessToken ? '' : 'consent' });
+  });
+}
+
+async function findDriveBackupFile(token){
+  const q = encodeURIComponent(`name='${DRIVE_FILENAME}' and trashed=false`);
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,modifiedTime)`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if(!res.ok) throw new Error('no se pudo consultar Drive');
+  const data = await res.json();
+  return (data.files && data.files[0]) || null;
+}
+
+async function configureDrive(){
+  const value = await dialogPrompt(
+    'Pega aquí el "Client ID" que te dio Google Cloud Console (termina en .apps.googleusercontent.com).',
+    { title:'Configurar conexión con Google Drive', defaultValue: driveClientId || '', confirmLabel:'Guardar' }
+  );
+  if(!value) return;
+  driveClientId = value.trim();
+  driveTokenClient = null;
+  await storageSet('drive-client-id', driveClientId);
+  showToast('Client ID guardado. Ya puedes usar "Guardar partida" / "Cargar partida".');
+}
+
+async function saveToDrive(){
+  if(!driveClientId){ await configureDrive(); if(!driveClientId) return; }
+  try{
+    showToast('Conectando con Google Drive…');
+    const token = await getDriveToken();
+    const existing = await findDriveBackupFile(token);
+    const content = JSON.stringify(leads, null, 2);
+    const boundary = 'leadscrmboundary';
+    const metadata = { name: DRIVE_FILENAME, mimeType: 'application/json' };
+    const body =
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${existing ? '{}' : JSON.stringify(metadata)}\r\n` +
+      `--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
+    const url = existing
+      ? `https://www.googleapis.com/upload/drive/v3/files/${existing.id}?uploadType=multipart`
+      : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+    const res = await fetch(url, {
+      method: existing ? 'PATCH' : 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': `multipart/related; boundary=${boundary}` },
+      body
+    });
+    if(!res.ok) throw new Error('subida fallida');
+    showToast('Partida guardada en Google Drive ✓');
+  }catch(e){
+    showToast('No se pudo guardar en Google Drive. Revisa la configuración o vuelve a intentar.');
+  }
+}
+
+async function loadFromDrive(){
+  if(!driveClientId){ await configureDrive(); if(!driveClientId) return; }
+  try{
+    showToast('Buscando tu partida en Google Drive…');
+    const token = await getDriveToken();
+    const file = await findDriveBackupFile(token);
+    if(!file){ showToast('Todavía no hay ninguna partida guardada en Drive. Usa "Guardar partida" primero.'); return; }
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if(!res.ok) throw new Error('descarga fallida');
+    const text = await res.text();
+    let incoming;
+    try{ incoming = JSON.parse(text); }catch(e){ showToast('El archivo guardado en Drive no se pudo leer.'); return; }
+    if(!Array.isArray(incoming)){ showToast('El archivo de Drive no tiene el formato esperado.'); return; }
+    const ok = await dialogConfirm(
+      'Esto va a reemplazar todo lo que tienes ahora mismo por la última partida guardada en Google Drive. ¿Continuar?',
+      { title:'Cargar partida', confirmLabel:'Sí, cargar' }
+    );
+    if(!ok) return;
+    leads = incoming.map(obj => Object.assign({
+      id: uid(), nombre:'', telefono:'', campana:'', estado:'nuevo',
+      proximaLlamada:'', tags:[], llamadas:[], creado: new Date().toISOString()
+    }, obj || {}));
+    scheduleSave();
+    render();
+    showToast('Partida cargada desde Google Drive ✓');
+  }catch(e){
+    showToast('No se pudo cargar desde Google Drive. Revisa la configuración o vuelve a intentar.');
+  }
+}
+
+document.getElementById('driveToggle').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  document.getElementById('exportMenu').classList.remove('open');
+  document.getElementById('driveMenu').classList.toggle('open');
+});
+document.getElementById('driveMenu').addEventListener('click', (e)=>{
+  const action = e.target.dataset.action;
+  if(action === 'save') saveToDrive();
+  if(action === 'load') loadFromDrive();
+  if(action === 'config') configureDrive();
+  document.getElementById('driveMenu').classList.remove('open');
+});
+
+document.getElementById('exportToggle').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  document.getElementById('driveMenu').classList.remove('open');
+  document.getElementById('exportMenu').classList.toggle('open');
+});
+document.getElementById('exportMenu').addEventListener('click', (e)=>{
+  const action = e.target.dataset.action;
+  if(action === 'csv') exportCSV();
+  if(action === 'pdf') exportPDF();
+  if(action === 'json') exportJSON();
+  document.getElementById('exportMenu').classList.remove('open');
+});
+document.addEventListener('click', ()=>{
+  document.getElementById('exportMenu').classList.remove('open');
+  document.getElementById('driveMenu').classList.remove('open');
+});
+
+/* ---------- importar CSV ---------- */
+
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){ if(text[i+1] === '"'){ field+='"'; i++; } else { inQuotes=false; } }
+      else field += c;
+    }else{
+      if(c === '"') inQuotes = true;
+      else if(c === ','){ row.push(field); field=''; }
+      else if(c === '\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else if(c === '\r'){ /* ignorar */ }
+      else field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(f => f.trim() !== ''));
+}
+
+function matchHeader(headers, options){
+  for(let i=0;i<headers.length;i++){
+    const h = headers[i].trim().toLowerCase();
+    if(options.includes(h)) return i;
+  }
+  return -1;
+}
+
+function parseImportedDate(str){
+  if(!str) return '';
+  const m = str.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\D+(\d{1,2}):(\d{2})/);
+  if(m){
+    const d = new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5]);
+    if(!isNaN(d)) return d.toISOString();
+  }
+  const generic = new Date(str);
+  return isNaN(generic) ? '' : generic.toISOString();
+}
+
+function matchEstado(str){
+  if(!str) return 'nuevo';
+  const t = str.trim().toLowerCase();
+  const found = ESTADOS.find(e => e.label.toLowerCase() === t || e.key === t);
+  return found ? found.key : 'nuevo';
+}
+
+document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('importInput').click());
+document.getElementById('importInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    if(file.name.toLowerCase().endsWith('.json')){
+      await importJSON(reader.result);
+      e.target.value = '';
+      return;
+    }
+    const rows = parseCSV(reader.result);
+    if(rows.length < 2){ await dialogAlert('El archivo no tiene datos para importar.', {title:'Archivo vacío'}); e.target.value=''; return; }
+    const headers = rows[0];
+    const idx = {
+      nombre: matchHeader(headers, ['nombre','name']),
+      telefono: matchHeader(headers, ['teléfono','telefono','phone','tel']),
+      campana: matchHeader(headers, ['campaña','campana','campaign','fuente']),
+      tags: matchHeader(headers, ['etiquetas','tags']),
+      estado: matchHeader(headers, ['estado','status']),
+      proximaLlamada: matchHeader(headers, ['próxima llamada','proxima llamada','next call']),
+      ultimaNota: matchHeader(headers, ['última nota','ultima nota','last note']),
+    };
+    let imported = 0;
+    rows.slice(1).forEach(r=>{
+      const nombre = idx.nombre>=0 ? (r[idx.nombre]||'').trim() : '';
+      const telefono = idx.telefono>=0 ? (r[idx.telefono]||'').trim() : '';
+      if(!nombre && !telefono) return;
+      const llamadas = [];
+      if(idx.ultimaNota>=0){
+        const raw = (r[idx.ultimaNota]||'').trim();
+        if(raw){
+          const m = raw.match(/^(\d{1,2}\/\d{1,2}\/\d{4}\s*·\s*\d{1,2}:\d{2})\s*-\s*(.*)$/);
+          llamadas.push({
+            id: uid(),
+            fecha: m ? parseImportedDate(m[1]) || new Date().toISOString() : new Date().toISOString(),
+            nota: m ? m[2] : raw
+          });
+        }
+      }
+      addLead(false, {
+        nombre, telefono,
+        campana: idx.campana>=0 ? (r[idx.campana]||'').trim() : '',
+        tags: idx.tags>=0 ? (r[idx.tags]||'').split(';').map(s=>s.trim()).filter(Boolean) : [],
+        estado: idx.estado>=0 ? matchEstado(r[idx.estado]) : 'nuevo',
+        proximaLlamada: idx.proximaLlamada>=0 ? parseImportedDate(r[idx.proximaLlamada]) : '',
+        llamadas,
+      });
+      imported++;
+    });
+    scheduleSave();
+    render();
+    const dups = duplicateIds().size;
+    await dialogAlert(`Se importaron ${imported} lead${imported===1?'':'s'}.${dups ? ` Se detectaron ${dups} teléfonos duplicados, revísalos.` : ''} Nota: el CSV solo trae la última nota de cada lead, no el historial completo — para un respaldo con todo, usa "Copia de respaldo (.json)".`, {title:'Importación completa'});
+    e.target.value = '';
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+/* ---------- vista, tema, utilidades ---------- */
+
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function render(){
+  renderStats();
+  renderStatsPanel();
+  renderChips();
+  updateBanner();
+  if(currentView === 'tabla') renderRows(); else renderKanban();
+}
+
+document.querySelectorAll('.view-toggle button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    currentView = btn.dataset.view;
+    document.querySelectorAll('.view-toggle button').forEach(b=>b.classList.toggle('active', b===btn));
+    document.getElementById('tableBoard').style.display = currentView==='tabla' ? 'block' : 'none';
+    document.getElementById('kanban').classList.toggle('open', currentView==='kanban');
+    render();
+  });
+});
+
+document.getElementById('statsToggle').addEventListener('click', ()=>{
+  document.getElementById('statsPanel').classList.toggle('open');
+});
+
+document.getElementById('search').addEventListener('input', (e)=>{ searchTerm = e.target.value; render(); });
+document.getElementById('addTop').addEventListener('click', ()=>{
+  const lead = addLead(true);
+  scheduleSave();
+  render();
+  setTimeout(()=>{
+    const el = document.querySelector(`[data-id="${lead.id}"] .nombre-input`);
+    if(el) el.focus();
+  }, 30);
+});
+
+function applyTheme(theme){
+  document.body.setAttribute('data-theme', theme);
+  document.getElementById('themeToggle').textContent = theme === 'light' ? 'Modo oscuro' : 'Modo claro';
+}
+
+async function loadTheme(){
+  let theme = 'dark';
+  try{
+    const raw = await storageGet('theme-pref');
+    if(raw) theme = raw;
+  }catch(e){ /* usa el valor por defecto */ }
+  applyTheme(theme);
+}
+
+document.getElementById('themeToggle').addEventListener('click', async ()=>{
+  const current = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  const next = current === 'light' ? 'dark' : 'light';
+  applyTheme(next);
+  try{ await storageSet('theme-pref', next); }catch(e){ /* no bloquea la interfaz */ }
+});
+
+setInterval(()=>{ if(!document.getElementById('modalBackdrop').classList.contains('open')) render(); }, 60000);
+
+loadTheme();
+loadDriveClientId();
+loadCustomEstados().then(loadLeads);
+</script>
+</body>
+</html>
